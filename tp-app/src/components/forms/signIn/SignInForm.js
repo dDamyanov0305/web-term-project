@@ -12,6 +12,7 @@ import LockOutlinedIcon from '@material-ui/icons/LockOutlined';
 import Paper from '@material-ui/core/Paper';
 import Typography from '@material-ui/core/Typography';
 import withStyles from '@material-ui/core/styles/withStyles';
+import red from '@material-ui/core/colors/red';
 import { auth } from 'firebase';
 
 const styles = theme => ({
@@ -44,6 +45,9 @@ const styles = theme => ({
   submit: {
     marginTop: theme.spacing.unit * 3,
   },
+  errorMessage:{
+    color:red[500],
+  }
 });
 
 class SignInForm extends Component{
@@ -52,6 +56,7 @@ class SignInForm extends Component{
     this.state = {
       email: '',
       password: '',
+      message:'',
     }
   }
 
@@ -61,16 +66,16 @@ class SignInForm extends Component{
 
   handleSignIn = (e) =>{
     e.preventDefault();
-    auth().signInWithEmailAndPassword(this.state.email,this.state.password);
-    this.props.history.push('/');
+    auth().signInWithEmailAndPassword(this.state.email,this.state.password)
+    .then(()=>{this.props.history.push('/');})
+    .catch(err=>{this.setState({message:err.message})});
+    
   }
 
   render(){
     const { classes } = this.props;
   
-    return (
-      <>
-      
+    return (      
       <main className={classes.main}>
         <CssBaseline />
         <Paper className={classes.paper}>
@@ -79,6 +84,9 @@ class SignInForm extends Component{
           </Avatar>
           <Typography component="h1" variant="h5">
             Sign in
+          </Typography>
+          <Typography className={classes.errorMessage}>
+            {this.state.message}
           </Typography>
           <form className={classes.form} onSubmit={this.handleSignIn}>
             <FormControl margin="normal" required fullWidth>
@@ -113,14 +121,13 @@ class SignInForm extends Component{
               variant="contained"
               color="primary"
               className={classes.submit}
-              
             >
               Sign in
             </Button>
           </form>
         </Paper>
       </main>
-      </>
+      
     );
   }
 }
@@ -129,4 +136,4 @@ SignInForm.propTypes = {
   classes: PropTypes.object.isRequired,
 };
 
-export default withStyles(styles)(SignInForm);
+export default withStyles(styles,{withTheme:true})(SignInForm);

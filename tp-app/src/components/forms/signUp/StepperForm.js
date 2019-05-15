@@ -10,7 +10,7 @@ import Typography from '@material-ui/core/Typography';
 import BasicInfo from './BasicInfo';
 import AddressForm from './AddressForm';
 import AvatarForm from './AvatarForm';
-
+import red from '@material-ui/core/colors/red';
 
 const styles = theme => ({
   layout: {
@@ -44,10 +44,13 @@ const styles = theme => ({
     marginTop: theme.spacing.unit * 3,
     marginLeft: theme.spacing.unit,
   },
+  errorMessage:{
+    color:red[500],
+  }
 });
 
-const steps = ['Email and Password', 'Choose Avatar', 'Shipping Address'];
 
+const steps = ['Email and Password', 'Choose Avatar', 'Shipping Address'];
 
 
 class StepperForm extends React.Component {
@@ -57,22 +60,33 @@ class StepperForm extends React.Component {
       activeStep: 0,
     };
   } 
+
   getStepContent = (step) => {
     switch (step) {
       case 0:
         return <BasicInfo handleChange={this.props.handleChange} state={this.props.state}/>;
       case 1:
-        return <AvatarForm handleImageChange={this.props.handleImageChange} state={this.props.state}/>;
+        return <AvatarForm handleChange={this.props.handleChange} state={this.props.state}/>;
       case 2:
         return <AddressForm handleChange={this.props.handleChange} state={this.props.state}/>;
       default:
         throw new Error('Unknown step');
     }
   }
-  handleNext = () => {
-    this.setState(state => ({
-      activeStep: state.activeStep + 1,
-    }));
+
+  handleNext = (e) => {
+    e.preventDefault();
+
+    this.setState(state => {
+
+      if(state.activeStep===steps.length-1){
+        this.props.handleSubmit(e);
+      }
+
+      return {activeStep: state.activeStep + 1};
+
+    });
+
   };
 
   handleBack = () => {
@@ -99,15 +113,18 @@ class StepperForm extends React.Component {
                 </Step>
               ))}
             </Stepper>
+            <Typography className={classes.errorMessage}>
+              {this.props.message}
+            </Typography>
             <React.Fragment>
               {activeStep === steps.length ? (
                 <React.Fragment>
                   <Typography variant="h5" gutterBottom>
-                    Thank you for your order.
+                    You have successfully signed on our platform.
                   </Typography>
                   <Typography variant="subtitle1">
-                    Your order number is #2001539. We have emailed your order confirmation, and will
-                    send you an update when your order has shipped.
+                    A conformation email has been sent to you. In order to
+                    use our srvices, please confirm your personal information.
                   </Typography>
                 </React.Fragment>
               ) : (
@@ -122,7 +139,7 @@ class StepperForm extends React.Component {
                     <Button
                       variant="contained"
                       color="primary"
-                      onClick={activeStep === steps.length - 1 ? this.props.handleSubmit : this.handleNext}
+                      onClick={this.handleNext}
                       className={classes.button}
                     >
                       {activeStep === steps.length - 1 ? 'Create Account' : 'Next'}

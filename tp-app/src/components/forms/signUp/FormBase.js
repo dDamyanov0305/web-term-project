@@ -3,72 +3,83 @@ import StepperForm from './StepperForm'
 import { auth, db, storage } from '../../../config/FirebaseConfig'
 
 class FormBase extends Component{
-    state={
-        firstName: '',
-        lastName: '',
-        email: '',
-        password: '',
-        avatar: false,
-        color:'',
-        image:'',
-        file:'',
-        addressLine1: '',
-        addressLine2: '',
-        city: '',
-        region: '',
-        zip: '',
-        country: '',
+    constructor(props){
+        super(props);
+        this.state = {
+            firstName: '',
+            lastName: '',
+            email: '',
+            password: '',
+            avatar: false,
+            color:'',
+            image:'',
+            file:'',
+            addressLine1: '',
+            addressLine2: '',
+            city: '',
+            region: '',
+            zip: '',
+            country: '',
+            basket:[],
+            purchased:[],
+            message:'',
+        }
     }
+    
 
     handleSubmit = (e) => {
         e.preventDefault();
-        console.log(this.state);
-        const { password, image, avatar, file, color, ...rest} = this.state;
-        let values={};
+        const { password, image, avatar, file, color, ...rest } = this.state;
+
         auth
             .createUserWithEmailAndPassword(this.state.email, this.state.password)
             .then(cred=>{
-                if(avatar){
-                    let uploadTask = storage.ref().child('avatars/'+cred.user.uid).put(this.state.file)
-                    uploadTask.on('state_changed', snapshot => {
-                        let progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-                        console.log('Upload is ' + progress + '% done');
-                      }, function(error) {
-                        console.log(error);
-                      }, () => {
-                        
-                        uploadTask.snapshot.ref.getDownloadURL().then(downloadURL => {
-                          cred.user.updateProfile({
-                            photoURL:downloadURL,
-                            displayName:`${rest.firstName} ${rest.lastName}`
-                          })
-                          .catch(error=>{console.log(error)});
-                        });
-                      });
-
-                    this.props.history.push('/');
-                    values={...rest,basket:null,purchased:null,}
-                }
-                else{
-                    values={...rest,basket:null,purchased:null,color}
-                }
-                db.collection("users").doc(cred.user.uid).set(values)
                 
+                db.collection("users").doc(cred.user.uid).set(rest);
+
+                if(avatar){
+                    storage.ref().child('avatars/'+cred.user.uid).put(this.state.file).then((snapshot)=>{
+                        snapshot.ref.getDownloadURL().then(url=>{
+                            db.collection("users").doc(cred.user.uid).update({url});
+                        })
+                    });
+                   
+                } 
+                setTimeout(()=>{this.props.history.push('/');},3500);
             })
-            .catch(error=>{
-                alert(error);
-            });
-    };
+            .catch(err=>{this.setState({message:err.message})});
+
+            
+    }
 
     handleChange = (e) =>{
-        this.setState({[e.target.name]:e.target.value});
+        if(e.target.name==="file"){
+            const file = e.target.files[0];
+            const reader = new FileReader();
+
+            reader.onloadend=()=>{
+                this.setState({ file, image : reader.result, avatar:true });
+            }
+
+            if(file){
+                reader.readAsDataURL(file);
+            }
+            
+        }
+        else{
+            this.setState({[e.target.name]:e.target.value});
+        }
     }
 
-    handleImageChange=(avatarArgs)=>{
-        this.setState({...avatarArgs});
-    }
+
     render(){
-        return <StepperForm state={this.state} handleImageChange={this.handleImageChange} handleSubmit={this.handleSubmit} handleChange={this.handleChange}/>;
+        return (
+            <StepperForm 
+                state={this.state} 
+                handleSubmit={this.handleSubmit} 
+                handleChange={this.handleChange}
+            />
+        );
     }
 
 }
