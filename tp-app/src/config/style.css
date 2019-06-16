@@ -1,0 +1,11 @@
+.row:hover{
+    background-color: rgb(245, 245, 245);
+}
+
+.row .last{
+    display: none;
+
+}
+.row:hover .last{
+    display: inline;
+}

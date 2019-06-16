@@ -7,8 +7,7 @@ import Typography from '@material-ui/core/Typography';
 
 const styles=()=>({
     backButton:{
-        marginTop: 56,
-        marginLeft: -15,
+        marginLeft: 35,
         position:'fixed',
         backgroundColor: 'transparent',
         boxShadow: 'none',
@@ -33,7 +32,7 @@ const BackButton = props =>{
             <Fab variant="extended" className={classes.backButton} onClick={history.goBack}>
                 <KeyboardArrowLeft className={classes.backIcon}/>
                 <Typography color='inherit' className={classes.backText}>
-                back
+                    back
                 </Typography>
             </Fab>
         );

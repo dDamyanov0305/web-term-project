@@ -36,8 +36,8 @@ class BookForm extends Component{
             file:'',
             review:'',//review
             categories:'',//comedy,...
-            uploaderID:this.props.uploader.uid,
             available:true,
+
         }
 
     }
@@ -50,14 +50,23 @@ class BookForm extends Component{
         rest.dimensions=rest.dimensions.split("x");
 
         storage.ref().child('books/'+rest.title).put(file).then(snapshot=>{
-
+            let booksRef;
+            let uploadTime;
             snapshot.ref.getDownloadURL().then(url=>{
-
-                db.collection("books").doc().set({
+                if(this.props.match.params.id){
+                    uploadTime=this.state.uploadTime;
+                    booksRef=db.collection("books").doc(this.props.match.params.id);
+                } else{
+                    booksRef=db.collection("books").doc();
+                    uploadTime = new Date()
+                }
+                booksRef.set({
                     ...rest,
                     image:url,
-                    uploadTime: new Date(),
+                    uploadTime,
+                    uploaderID:this.props.uploader.uid,
                 })
+                .then(this.props.history.push("/uploads"))
                 .catch(reason=>{console.log(reason)});
 
             }).catch(reason=>{console.log(reason)});
@@ -81,6 +90,12 @@ class BookForm extends Component{
         }
         else{
             this.setState({[e.target.name]:e.target.value});
+        }
+    }
+
+    componentDidMount(){
+        if(this.props.match.params.id){
+            db.collection("books").doc(this.props.match.params.id).get().then(doc=>this.setState({...doc.data()}));
         }
     }
 
@@ -194,6 +209,7 @@ class BookForm extends Component{
                                 inputRef={input=>(this.input=input)} 
                                 onChange={handleChange}
                                 className={classes.input}
+                                autoFocus={false}
                             />
                             <Button variant="contained" color="primary" onClick={()=>{this.input.click()}}>
                                 Choose image

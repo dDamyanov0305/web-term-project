@@ -1,4 +1,5 @@
 import React from 'react'
+import {Route,Switch} from 'react-router-dom'
 import { Typography, Button } from '@material-ui/core'
 import { withStyles } from '@material-ui/core/styles'
 import PropTypes from 'prop-types';
@@ -20,6 +21,11 @@ const styles = theme =>({
     buttonText:{
         marginLeft:10,
         marginRight:10,
+        color:theme.palette.background.paper,
+    },
+    buttonText2:{
+        marginLeft:20,
+        marginRight:20 ,
         color:theme.palette.background.paper,
     }
 })
@@ -45,6 +51,7 @@ const Item = props =>{
                     add to basket
                 </Typography>
             </Button>
+                
         </div>
     );
     
