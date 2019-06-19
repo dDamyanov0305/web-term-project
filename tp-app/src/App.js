@@ -14,6 +14,7 @@ import Requests from './components/Requests';
 import RedirectDialog from './components/RedirectDialog';
 import Uploads from './components/Uploads';
 import Grid from '@material-ui/core/Grid';
+import Body from './components/Body';  
 
 class App extends Component {
   constructor(props){
@@ -172,7 +173,7 @@ class App extends Component {
         <Grid item xs={10}>
           <RedirectDialog {...props} open={state.dialog} handleDialogClose={this.handleDialogClose}/>
           <Layout {...props} user={state.user}>
-            <div style={{marginTop:100}}>
+            <div style={{marginTop:100,}}>
               <Switch>
                 <Route path='/signIn' component={SignInForm}/>
                 <Route path='/signUp' component={Base}/>
@@ -183,7 +184,7 @@ class App extends Component {
                 <Route path='/purchases' render={(props)=><Purchases {...props} items={state.user.purchased}/>}/>
                 <Route path='/requests' render={(props)=><Requests {...props} items={state.user.requests} acceptRequest={this.acceptRequest} rejectRequest={this.rejectRequest}/>}/>
                 <Route path='/uploads' render={(props)=><Uploads {...props} items={state.user.uploads}/>}/>
-                <Route path='/' render={(props)=><BookSegment {...props} label="Recent" items={items}  handleBasketChange={this.handleBasketChange}/>}/>
+                <Route path='/' render={(props)=><Body {...props} items={items} handleBasketChange={this.handleBasketChange}/>}/>
               </Switch>
             </div>
           </Layout>
